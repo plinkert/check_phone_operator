@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-# import os
+import sys
+import getopt
 import time
 import requests
 import re
@@ -48,6 +49,7 @@ def create_report_txt(file: str, data: dict):
             report.write(str(key)+ '\t' + str(val) + '\n')
 
 def run_scope(phones_list: list, report_name: str):
+    print('START')
     phones = {}
     i = 0
     check = 0
@@ -58,9 +60,9 @@ def run_scope(phones_list: list, report_name: str):
             phones[phones_list[i]] = operator
             i+=1
         else:
-            time.sleep(10)
+            time.sleep(60)
             check += 1
-            if check == 2:
+            if check == 10:
                 phones[phones_list[i]] = 'zły numer/brak operatora'
                 i+=1
                 check = 0
@@ -68,11 +70,46 @@ def run_scope(phones_list: list, report_name: str):
     # print(phones)
     create_report_txt(report_name, phones)
 
+def help():
+    text = "Skrypt phone_operator.py v1.0\n" \
+           "Opcje:\n" \
+           "-h : Pomoc\n" \
+           "-f : Nazwa pliku z numerami\n" \
+           "-r : Nazwa pliku raportu z numerami i ich operatorami\n" \
+           "Przyklad uzycia:\n" \
+           "python3 checkip.py -f 'numbers.txt' -r 'report.txt'"
+    return text
+
+def main():
+
+    report_file = 'report.txt'
+
+    argv = sys.argv[1:]
+
+    try:
+        opts, args = getopt.getopt(argv, "hf:r:")
+        if not opts:
+            print('Wymagane podanie pliku z adresami')
+            print(help())
+            sys.exit(2)
+    except getopt.GetoptError as err:
+        print(err)
+        opts = []
+
+    for opt, arg in opts:
+        if opt in ['-h']:
+            print(help())
+            sys.exit(2)
+        elif opt in ['-f']:
+            numbers_file = arg
+        elif opt in ['-r']:
+            report_file = arg
+        else:
+            print('Nie rozpoznano komendy\n', help())
+
+    phone_list = open_file_txt(numbers_file)
+    run_scope(phone_list, report_file)
+    print('Done!')
+
 if __name__ == "__main__":
-    #TEST
-    print('START')
-    phone_list = open_file_txt('phones.txt')
-    print('LISTA GOTOWA')
-    run_scope(phone_list, 'raport.txt')
-    print('STOP')
-    # print(phones_list)
+    main()
