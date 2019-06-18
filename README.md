@@ -6,3 +6,7 @@ phones.txt - file with phone numbers
 
 OUT
 report.txt - file with numbers and operators
+
+Quick run:
+
+python3 checkip.py -f 'numbers.txt' -r 'report.txt'
